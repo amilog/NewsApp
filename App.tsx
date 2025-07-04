@@ -1,7 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, ImageBackground, StatusBar } from 'react-native';
-import RootNavigator from './src/navigations/RootNavigator';
+
+import { NavigationTheme } from './src/themes/NavigationTheme';
+import RootNavigator from '@navigation/RootNavigator';
 
 function App() {
   return (
@@ -15,7 +17,7 @@ function App() {
         backgroundColor="transparent"
         translucent={true}
       />
-      <NavigationContainer>
+      <NavigationContainer theme={NavigationTheme}>
         <RootNavigator />
       </NavigationContainer>
     </ImageBackground>
@@ -27,8 +29,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 

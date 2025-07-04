@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '../modules/home/home.screen';
-import DetailScreen from '../modules/screens/detail.screen';
+import HomeScreen from '@modules/home/home.screen';
+import DetailScreen from '@modules/screens/detail.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -12,17 +12,15 @@ const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   return (
-    <Navigator>
-      <Screen
-        name="HomeScreen"
-        component={HomeScreen}
-        options={{ headerShown: false }}
-      />
-      <Screen
-        name="DetailScreen"
-        component={DetailScreen}
-        options={{ headerShown: false }}
-      />
+    <Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: 'transparent' },
+        animation: 'slide_from_right',
+      }}
+    >
+      <Screen name="HomeScreen" component={HomeScreen} />
+      <Screen name="DetailScreen" component={DetailScreen} />
     </Navigator>
   );
 }
