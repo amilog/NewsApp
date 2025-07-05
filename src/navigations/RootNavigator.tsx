@@ -1,10 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '@modules/home/home.screen';
+import BottomTabBar from './BottomTabBar';
 import DetailScreen from '@modules/screens/detail.screen';
 
 export type RootStackParamList = {
-  HomeScreen: undefined;
+  BottomTabBar: undefined;
   DetailScreen: { id: string };
 };
 
@@ -19,7 +19,7 @@ function RootNavigator() {
         animation: 'slide_from_right',
       }}
     >
-      <Screen name="HomeScreen" component={HomeScreen} />
+      <Screen name="BottomTabBar" component={BottomTabBar} />
       <Screen name="DetailScreen" component={DetailScreen} />
     </Navigator>
   );

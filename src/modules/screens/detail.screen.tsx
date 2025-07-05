@@ -1,12 +1,14 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
+import colors from '@constants/colors';
+
 function DetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Detail Screen</Text>
-        <Text style={styles.subtitle}></Text>
+        <Text style={styles.subtitle}>SVGsucc</Text>
       </View>
     </SafeAreaView>
   );
@@ -29,10 +31,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
   },
 });
