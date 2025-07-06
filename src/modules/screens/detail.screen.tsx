@@ -1,14 +1,20 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-
+import { StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@constants/colors';
 
 function DetailScreen() {
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? colors.dark : colors.light;
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.content}>
-        <Text style={styles.title}>Detail Screen</Text>
-        <Text style={styles.subtitle}>SVGsucc</Text>
+        <Text style={[styles.title, { color: theme.mainText }]}>
+          Detail Screen
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.secondaryText }]}>
+          detail screen
+        </Text>
       </View>
     </SafeAreaView>
   );

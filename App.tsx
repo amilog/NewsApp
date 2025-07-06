@@ -7,11 +7,12 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   NavigationTheme,
   NavigationDarkTheme,
-} from './src/themes/NavigationTheme';
+} from 'src/themes/NavigationTheme';
 import RootNavigator from '@navigation/RootNavigator';
 
 function App() {
@@ -19,12 +20,7 @@ function App() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <ImageBackground
-      source={require('./src/assets/images/paper-background.jpg')} // hər screendə eyni arxa plan üçün şəkli burada verdim
-      style={styles.backgroundImage}
-      resizeMode="cover"
-    >
-      {isDark && <View style={styles.darkOverlay} pointerEvents="none" />}
+    <SafeAreaProvider>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
@@ -35,7 +31,7 @@ function App() {
       >
         <RootNavigator />
       </NavigationContainer>
-    </ImageBackground>
+    </SafeAreaProvider>
   );
 }
 

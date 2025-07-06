@@ -171,12 +171,12 @@ function BottomTabBar() {
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{ tabBarLabel: 'Home' }}
+        options={{ tabBarLabel: 'Xəbərlər' }}
       />
       <Tab.Screen
         name="Favorite"
         component={FavoriteScreen}
-        options={{ tabBarLabel: 'Favorites' }}
+        options={{ tabBarLabel: 'Bəyənilən' }}
       />
     </Tab.Navigator>
   );
