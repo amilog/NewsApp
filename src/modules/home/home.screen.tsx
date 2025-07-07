@@ -24,7 +24,6 @@ import Animated, {
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
 
-// Sabit değer - NewsCard ile eşleşmeli
 const ITEM_HEIGHT = 408;
 
 function HomeScreen() {
@@ -79,7 +78,6 @@ function HomeScreen() {
   );
 
   const loadCachedArticles = useCallback(async () => {
-    console.log('📱 Loading from cache...');
     try {
       const stored = await AsyncStorage.getItem(CACHE_KEY);
       if (stored) {
@@ -97,15 +95,11 @@ function HomeScreen() {
 
         if (imagesToPreload.length > 0) {
           FastImage.preload(imagesToPreload);
-          console.log(
-            `🖼️ Cache'den ${imagesToPreload.length} resim preload edildi`,
-          );
         }
       } else {
         setArticles([]);
       }
     } catch (error) {
-      console.log('Cache load error:', error);
       setArticles([]);
     }
   }, []);
@@ -130,10 +124,10 @@ function HomeScreen() {
       setIsOnline(online);
 
       if (online) {
-        console.log('🌐 Online');
+        console.log('Online');
         fetchPage(1, true);
       } else {
-        console.log('📱 Offline');
+        console.log('Offline');
         loadCachedArticles();
       }
     });

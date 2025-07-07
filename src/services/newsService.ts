@@ -25,21 +25,13 @@ export const newsService = {
     page: number = 1,
     pageSize: number = 5,
   ): Promise<NewsResponse | null> => {
-    console.log(`📡 Fetching news page ${page}...`);
-
     try {
       const response = await axios.get(
         `https://newsapi.org/v2/everything?q=bitcoin&apiKey=71a5c9d9ef644ea9964f707b8da4fe2b&page=${page}&pageSize=${pageSize}`,
       );
 
-      console.log('✅ Data received:', !!response.data);
-      console.log(
-        `📊 Articles count: ${response.data?.articles?.length} (page ${page})`,
-      );
-
       return response.data;
     } catch (error) {
-      console.log('❌ Failed to fetch news');
       return null;
     }
   },

@@ -29,8 +29,6 @@ export const apiCaller = async <T>(
   customHeaders?: Record<string, string>,
 ): Promise<APIResponse<T> | undefined> => {
   const fullUrl = `${ENDPOINTS.BASE_URL}${endPoint}`;
-  console.log('🌐 NewsAPI Call:', method.toUpperCase(), fullUrl);
-  console.log('📋 API Params:', params);
 
   const headers = {
     Accept: 'application/json',
@@ -38,8 +36,6 @@ export const apiCaller = async <T>(
     'User-Agent': 'NewsApp/1.0',
     ...customHeaders,
   };
-
-  console.log('📋 API Headers:', headers);
 
   const config: AxiosRequestConfig = {
     headers,
@@ -70,15 +66,8 @@ export const apiCaller = async <T>(
         throw new Error('Unknown API Method');
     }
 
-    console.log('✅ NewsAPI Success:', response.status);
-    console.log('📊 Response Data received:', !!response.data);
-
     return { data: response.data, status: response.status };
   } catch (error: any) {
-    console.error('💥 NewsAPI Error Details:', error.message);
-    console.error('💥 NewsAPI Error Response:', error.response?.data);
-    console.error('💥 NewsAPI Error Status:', error.response?.status);
-
     const apiError = error as APIError;
     return apiError.response;
   }

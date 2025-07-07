@@ -22,7 +22,7 @@ export const storage = {
       };
       await AsyncStorage.setItem(key, JSON.stringify(cacheData));
     } catch (error) {
-      console.error('Cache save error:', error);
+      console.log('Cache save error:', error);
     }
   },
 
@@ -46,7 +46,7 @@ export const storage = {
       }
       return null;
     } catch (error) {
-      console.error('Cache read error:', error);
+      console.log('Cache read error:', error);
       return null;
     }
   },
@@ -55,7 +55,7 @@ export const storage = {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error('Storage set error:', error);
+      console.log('Storage set error:', error);
     }
   },
 
@@ -64,7 +64,7 @@ export const storage = {
       const value = await AsyncStorage.getItem(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
-      console.error('Storage get error:', error);
+      console.log('Storage get error:', error);
       return null;
     }
   },
@@ -73,7 +73,7 @@ export const storage = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('Storage delete error:', error);
+      console.log('Storage delete error:', error);
     }
   },
 
@@ -81,7 +81,7 @@ export const storage = {
     try {
       await AsyncStorage.clear();
     } catch (error) {
-      console.error('Storage clear error:', error);
+      console.log('Storage clear error:', error);
     }
   },
 };
