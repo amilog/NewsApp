@@ -1,6 +1,6 @@
 # News App RN app
 
-> **Qısa izahat** – Task üçün funksional, lakin minimal dizaynlı "xəbər" app-i. React Native CLI ilə yaradılıb, TypeScript + Zustand + Reanimated və s. istifadə edir. env file ı nı əlavə etdim ancaq api key verməli olduğumuz zaman problem yaranmasın deyə birbaşa urldə qeyd etdim.
+> **Qısa izahat** – Task üçün funksional, lakin minimal dizaynlı "xəbər" app-i. React Native CLI ilə yaratdım çünki oba app cli da yazılıb. TypeScript + Zustand + Reanimated və s. istifadə edir. .env file ı nı əlavə etdim ancaq api key verməli olduğumuz zaman problem yaranmasın deyə birbaşa urldə qeyd etdim.
 
 ## Nə var?
 
