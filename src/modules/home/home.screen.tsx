@@ -19,6 +19,13 @@ import NewsCardSkeleton from './components/NewsCardSkeleton';
 import { useFavoriteStore } from '@store/favoriteStore';
 import { STORAGE_KEYS } from '@store/storage/localStorage';
 import { useNewsStore } from '@store/newsStore';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+} from 'react-native-reanimated';
+
+// Sabit değer - NewsCard ile eşleşmeli
+const ITEM_HEIGHT = 408;
 
 function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -42,10 +49,19 @@ function HomeScreen() {
   const isFavorite = useFavoriteStore(state => state.isFavorite);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const scrollY = useSharedValue(0);
+  const viewportH = useSharedValue(0);
   const isLoadingMore = loading && currentPage > 1;
   const isLoading = loading && currentPage === 1 && !isRefreshing;
 
   const CACHE_KEY = STORAGE_KEYS.NEWS_CACHE;
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y;
+      viewportH.value = event.layoutMeasurement.height;
+    },
+  });
 
   const fetchPage = useCallback(
     async (page: number, isRefresh: boolean = false) => {
@@ -159,15 +175,18 @@ function HomeScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: NewsArticle }) => (
+    ({ item, index }: { item: NewsArticle; index: number }) => (
       <NewsCard
         article={item}
         onPress={handlePress}
         onLike={handleLike}
         isLiked={isArticleLiked(item)}
+        scrollY={scrollY}
+        viewportH={viewportH}
+        index={index}
       />
     ),
-    [handlePress, handleLike, isArticleLiked],
+    [handlePress, handleLike, isArticleLiked, scrollY, viewportH],
   );
 
   const renderFooter = useCallback(() => {
@@ -176,8 +195,6 @@ function HomeScreen() {
     }
     return null;
   }, [isLoadingMore]);
-
-  const ITEM_HEIGHT = 380;
 
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
@@ -263,7 +280,7 @@ function HomeScreen() {
         </View>
       )}
 
-      <FlatList
+      <Animated.FlatList
         data={articles}
         keyExtractor={(item, index) => `${item.url}-${index}`}
         renderItem={renderItem}
@@ -281,6 +298,8 @@ function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         getItemLayout={getItemLayout}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
       />
     </SafeAreaView>
   );

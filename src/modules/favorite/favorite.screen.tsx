@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,6 @@ function FavoriteScreen() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
   const { favorites, removeFavorite, clearFavorites } = useFavoriteStore();
-  const [loading, setLoading] = useState(false);
 
   const removeLikedArticle = useCallback(
     (article: NewsArticle) => {
@@ -46,23 +45,14 @@ function FavoriteScreen() {
     [handleArticlePress, removeLikedArticle],
   );
 
-  const renderEmpty = useCallback(
-    () => (
-      <View style={styles.emptyContainer}>
-        <Text style={[styles.emptyIcon, { color: theme.subText }]}>💔</Text>
-        <Text style={[styles.emptyTitle, { color: theme.mainText }]}>
-          Hələ bəyənilən xəbər yoxdur
-        </Text>
-        <Text style={[styles.emptySubtitle, { color: theme.subText }]}>
-          Xəbərləri bəyənməyə başlayın və burada görün
-        </Text>
-      </View>
-    ),
-    [theme],
-  );
-
-  const renderHeader = useCallback(
-    () => (
+  return (
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: colorScheme === 'dark' ? '#0a0a0f' : '#f0f2f8' },
+      ]}
+      edges={['top', 'left', 'right']}
+    >
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, { color: theme.mainText }]}>
           Bəyənilən Xəbərlər
@@ -78,44 +68,21 @@ function FavoriteScreen() {
           </TouchableOpacity>
         )}
       </View>
-    ),
-    [theme, favorites.length, handleClearAll],
-  );
-
-  if (loading) {
-    return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colorScheme === 'dark' ? '#0a0a0f' : '#f0f2f8' },
-        ]}
-        edges={['top', 'left', 'right']}
-      >
-        {renderHeader()}
-        <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, { color: theme.subText }]}>
-            Yüklənir...
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colorScheme === 'dark' ? '#0a0a0f' : '#f0f2f8' },
-      ]}
-      edges={['top', 'left', 'right']}
-    >
-      {renderHeader()}
       <FlatList
         data={favorites}
         renderItem={renderItem}
         keyExtractor={(item, index) => `liked-${item.url}-${index}`}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={renderEmpty}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyTitle, { color: theme.mainText }]}>
+              Hələ bəyənilən xəbər yoxdur
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: theme.subText }]}>
+              Xəbərləri bəyənməyə başlayın və burada görün
+            </Text>
+          </View>
+        )}
         showsVerticalScrollIndicator={false}
         getItemLayout={(data, index) => ({
           length: 380,
@@ -180,13 +147,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 22,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
   },
 });

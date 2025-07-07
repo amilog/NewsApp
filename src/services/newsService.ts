@@ -29,7 +29,7 @@ export const newsService = {
 
     try {
       const response = await axios.get(
-        `https://newsapi.org/v2/everything?q=bitcoin&apiKey=1a86a26561cf49289b518d572e483a1e&page=${page}&pageSize=${pageSize}`,
+        `https://newsapi.org/v2/everything?q=bitcoin&apiKey=71a5c9d9ef644ea9964f707b8da4fe2b&page=${page}&pageSize=${pageSize}`,
       );
 
       console.log('✅ Data received:', !!response.data);

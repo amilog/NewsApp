@@ -14,20 +14,28 @@ import Animated, {
   withDelay,
   withRepeat,
   withSequence,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 import FastImage from 'react-native-fast-image';
+import type { SharedValue } from 'react-native-reanimated';
 
 import colors from '@constants/colors';
 import { NewsArticle } from '@services/newsService';
 import HeartIcon from '@icons/tabbar/like-icon.svg';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const ITEM_HEIGHT = 408;
 
 interface NewsCardProps {
   article: NewsArticle;
   onPress?: (article: NewsArticle) => void;
   onLike?: (article: NewsArticle) => void;
   isLiked?: boolean;
+  scrollY?: SharedValue<number>;
+  viewportH?: SharedValue<number>;
+  index?: number;
 }
 
 const AnimatedTitle: React.FC<{
@@ -103,9 +111,62 @@ const NewsCard: React.FC<NewsCardProps> = ({
   onPress,
   onLike,
   isLiked = false,
+  scrollY,
+  viewportH,
+  index = 0,
 }) => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
+
+  const animatedCardStyle = useAnimatedStyle(() => {
+    if (!scrollY || !viewportH) return {};
+
+    const viewH = viewportH.value;
+    const currentScrollY = scrollY.value;
+
+    const cardCenterY = index * ITEM_HEIGHT + ITEM_HEIGHT / 2;
+
+    const viewportCenterY = currentScrollY + viewH / 2;
+
+    const distance = Math.abs(cardCenterY - viewportCenterY);
+
+    const normalizedDistance = Math.min(distance / (viewH / 2), 1);
+
+    const scale = 1 - normalizedDistance * 0.15;
+
+    const opacity = 1 - normalizedDistance * 0.6;
+
+    const rotationFactor = (cardCenterY - viewportCenterY) / (viewH / 2);
+    const rotateX = rotationFactor * 12;
+
+    return {
+      transform: [
+        { perspective: 1000 },
+        { scale: Math.max(scale, 0.85) },
+        { rotateX: `${Math.max(Math.min(rotateX, 12), -12)}deg` },
+      ],
+      opacity: Math.max(opacity, 0.4),
+    };
+  });
+
+  const animatedImageStyle = useAnimatedStyle(() => {
+    if (!scrollY || !viewportH) return {};
+
+    const viewH = viewportH.value;
+    const currentScrollY = scrollY.value;
+
+    const cardCenterY = index * ITEM_HEIGHT + ITEM_HEIGHT / 2;
+
+    const viewportCenterY = currentScrollY + viewH / 2;
+
+    const distance = cardCenterY - viewportCenterY;
+
+    const parallaxY = (distance / viewH) * 30;
+
+    return {
+      transform: [{ translateY: parallaxY }],
+    };
+  });
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -131,24 +192,20 @@ const NewsCard: React.FC<NewsCardProps> = ({
   const glassColors =
     colorScheme === 'dark'
       ? {
-          container: 'rgba(20, 20, 25, 0.85)',
-          containerBorder: 'rgba(255, 255, 255, 0.12)',
-          overlay: 'rgba(255, 255, 255, 0.05)',
-          mirror: 'rgba(255, 255, 255, 0.15)',
-          content: 'rgba(255, 255, 255, 0.08)',
-          contentBorder: 'rgba(255, 255, 255, 0.2)',
-          shadow: 'rgba(0, 0, 0, 0.6)',
-          dateContainer: 'rgba(255, 255, 255, 0.12)',
+          container: '#1e1e1e',
+          containerBorder: 'transparent',
+          content: 'rgba(0,0,0,0.5)',
+          contentBorder: 'transparent',
+          shadow: 'rgba(0,0,0,0.4)',
+          dateContainer: 'rgba(0,0,0,0.4)',
         }
       : {
-          container: 'rgba(255, 255, 255, 0.4)',
-          containerBorder: 'rgba(255, 255, 255, 0.6)',
-          overlay: 'rgba(255, 255, 255, 0.25)',
-          mirror: 'rgba(255, 255, 255, 0.6)',
-          content: 'rgba(255, 255, 255, 0.35)',
-          contentBorder: 'rgba(255, 255, 255, 0.6)',
-          shadow: 'rgba(0, 0, 0, 0.15)',
-          dateContainer: 'rgba(255, 255, 255, 0.7)',
+          container: '#ffffff',
+          containerBorder: 'transparent',
+          content: 'rgba(0,0,0,0.5)',
+          contentBorder: 'transparent',
+          shadow: 'rgba(0,0,0,0.4)',
+          dateContainer: 'rgba(0,0,0,0.4)',
         };
 
   const likeColors = isLiked
@@ -172,122 +229,116 @@ const NewsCard: React.FC<NewsCardProps> = ({
   const titleMaxWidth = SCREEN_WIDTH - 64;
 
   return (
-    <TouchableOpacity
-      style={styles.cardWrapper}
-      onPress={handlePress}
-      activeOpacity={0.95}
-    >
-      <View
-        style={[
-          styles.glassContainer,
-          {
-            backgroundColor: glassColors.container,
-            borderColor: glassColors.containerBorder,
-            shadowColor: glassColors.shadow,
-          },
-        ]}
+    <Animated.View style={[styles.cardWrapper, animatedCardStyle]}>
+      <TouchableOpacity
+        onPress={handlePress}
+        activeOpacity={0.95}
+        style={styles.touchableCard}
       >
         <View
           style={[
-            styles.glassOverlay,
-            { backgroundColor: glassColors.overlay },
-          ]}
-          pointerEvents="none"
-        />
-        <View
-          style={[styles.mirrorEffect, { backgroundColor: glassColors.mirror }]}
-          pointerEvents="none"
-        />
-        <View
-          style={[
-            styles.bottomGradient,
-            { backgroundColor: glassColors.overlay },
-          ]}
-          pointerEvents="none"
-        />
-
-        <View
-          style={[
-            styles.dateContainer,
-            { backgroundColor: glassColors.dateContainer },
+            styles.cardSurface,
+            {
+              backgroundColor: glassColors.container,
+              borderColor: glassColors.containerBorder,
+              shadowColor: glassColors.shadow,
+            },
           ]}
         >
-          <Text style={styles.dateText}>{formatDate(article.publishedAt)}</Text>
-        </View>
+          <View style={styles.highlight} pointerEvents="none" />
+          <View style={styles.innerFade} pointerEvents="none" />
 
-        {article.urlToImage && (
-          <View style={styles.imageContainer}>
-            <FastImage
-              source={{
-                uri: article.urlToImage,
-                priority: FastImage.priority.normal,
-                cache: FastImage.cacheControl.immutable,
-              }}
-              style={styles.mainImage}
-              resizeMode={FastImage.resizeMode.cover}
-            />
-            <View style={styles.imageOverlay} />
-          </View>
-        )}
-
-        <View style={styles.contentSection}>
           <View
             style={[
-              styles.sourceContainer,
-              {
-                backgroundColor: glassColors.content,
-                borderColor: glassColors.contentBorder,
-              },
+              styles.dateContainer,
+              { backgroundColor: glassColors.dateContainer },
             ]}
           >
-            <Text
-              style={[styles.sourceText, { color: theme.accent }]}
-              numberOfLines={1}
-            >
-              {article.source.name}
+            <Text style={styles.dateText}>
+              {formatDate(article.publishedAt)}
             </Text>
           </View>
 
-          <View style={styles.titleSection}>
-            <AnimatedTitle text={article.title} maxWidth={titleMaxWidth} />
-          </View>
-
-          {article.description && (
-            <Text style={styles.descriptionText} numberOfLines={2}>
-              {article.description}
-            </Text>
+          {article.urlToImage && (
+            <View style={styles.imageContainer}>
+              <Animated.View style={[styles.imageWrapper, animatedImageStyle]}>
+                <FastImage
+                  source={{
+                    uri: article.urlToImage,
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                  }}
+                  style={styles.mainImage}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+              </Animated.View>
+              <View style={styles.imageOverlay} />
+            </View>
           )}
 
-          <View
-            style={[
-              styles.footerContainer,
-              {
-                backgroundColor: glassColors.content,
-                borderColor: glassColors.contentBorder,
-              },
-            ]}
-          >
-            <Text style={styles.authorText} numberOfLines={1}>
-              {article.author || 'Müəllif məlum deyil'}
-            </Text>
-
-            <TouchableOpacity
+          <View style={styles.contentSection}>
+            <View
               style={[
-                styles.likeButton,
+                styles.sourceContainer,
                 {
-                  backgroundColor: likeColors.background,
-                  borderColor: likeColors.border,
+                  backgroundColor: glassColors.content,
+                  borderColor: glassColors.contentBorder,
                 },
               ]}
-              onPress={handleLike}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <HeartIcon width={18} height={18} color={likeColors.iconColor} />
-            </TouchableOpacity>
+              <Text
+                style={[styles.sourceText, { color: theme.accent }]}
+                numberOfLines={1}
+              >
+                {article.source.name}
+              </Text>
+            </View>
+
+            <View style={styles.titleSection}>
+              <AnimatedTitle text={article.title} maxWidth={titleMaxWidth} />
+            </View>
+
+            {article.description && (
+              <Text style={styles.descriptionText} numberOfLines={2}>
+                {article.description}
+              </Text>
+            )}
+
+            <View
+              style={[
+                styles.footerContainer,
+                {
+                  backgroundColor: glassColors.content,
+                  borderColor: glassColors.contentBorder,
+                },
+              ]}
+            >
+              <Text style={styles.authorText} numberOfLines={1}>
+                {article.author || 'Müəllif məlum deyil'}
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.likeButton,
+                  {
+                    backgroundColor: likeColors.background,
+                    borderColor: likeColors.border,
+                  },
+                ]}
+                onPress={handleLike}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <HeartIcon
+                  width={18}
+                  height={18}
+                  color={likeColors.iconColor}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -297,9 +348,14 @@ const styles = StyleSheet.create({
   cardWrapper: {
     marginVertical: 14,
     marginHorizontal: 16,
+    height: ITEM_HEIGHT - 28,
   },
 
-  glassContainer: {
+  touchableCard: {
+    flex: 1,
+  },
+
+  cardSurface: {
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
@@ -308,31 +364,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 12,
     position: 'relative',
-  },
-
-  glassOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 19,
-  },
-  mirrorEffect: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    opacity: 0.4,
-  },
-  bottomGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 120,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    opacity: 0.6,
+    flex: 1,
   },
 
   dateContainer: {
@@ -361,6 +393,11 @@ const styles = StyleSheet.create({
   imageContainer: {
     height: 260,
     position: 'relative',
+    overflow: 'hidden',
+  },
+  imageWrapper: {
+    width: '100%',
+    height: '120%',
   },
   mainImage: {
     width: '100%',
@@ -434,26 +471,30 @@ const styles = StyleSheet.create({
   },
   authorText: {
     fontSize: 12,
-    fontStyle: 'italic',
-    color: 'rgba(255, 255, 255, 0.75)',
-    flex: 1,
-    marginRight: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
     textShadowColor: 'rgba(0, 0, 0, 0.7)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
-
   likeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    shadowColor: 'rgba(0, 0, 0, 0.3)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    padding: 8,
+    borderRadius: 16,
+  },
+
+  highlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  innerFade: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
 });
